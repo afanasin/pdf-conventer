@@ -1,0 +1,32 @@
+import PyPDF2
+
+def pdf_to_text(file_path):
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfFileReader(file)
+        text = ''
+        for page in range(reader.numPages):
+            text += reader.getPage(page).extractText()
+    return text
+
+from pdfminer.converter import TextConverter
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
+from io import StringIO
+
+def pdf_to_text(file_path):
+    resource_manager = PDFResourceManager()
+    return_string = StringIO()
+    codec = 'utf-8'
+    laparams = None
+    device = TextConverter(resource_manager, return_string, codec=codec, laparams=laparams)
+    
+    with open(file_path, 'rb') as file:
+        interpreter = PDFPageInterpreter(resource_manager, device)
+        for page in PDFPage.get_pages(file):
+            interpreter.process_page(page)
+    
+    text = return_string.getvalue()
+    return_string.close()
+    return text
+
+pdf2txt -o output.txt input.pdf
